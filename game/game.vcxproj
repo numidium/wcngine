@@ -121,6 +121,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Entity.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="Texture.c" />
   </ItemGroup>
