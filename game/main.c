@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <SDL.h>
 #include "Texture.h"
+#include "Entity.h"
+#include "Camera.h"
 
 int main(int argc, char** argv) 
 {
@@ -13,7 +15,7 @@ int main(int argc, char** argv)
 		printf("SDL appears to be working.\n");
 	}
 
-	SDL_Window* window = SDL_CreateWindow("WCngine", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
+	SDL_Window* window = SDL_CreateWindow("WCngine", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768, 0);
 	if (window == NULL)
 	{
 		printf(SDL_GetError());
@@ -21,24 +23,53 @@ int main(int argc, char** argv)
 	}
 
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-	Texture* texture = loadTexture(renderer, "./Assets/Sprites/hyperion.bmp");
+	SDL_RenderSetLogicalSize(renderer, 640, 480);
 	
-	SDL_RenderClear(renderer);
-	drawTexture(renderer, texture, 0, 0, 45);
-	SDL_RenderPresent(renderer);
+	EntityPrototype proto;
+	proto.texture = loadTexture(renderer, "./Assets/Sprites/hyperion.bmp");
+
+	Camera camera = createCamera(renderer);
+	Entity entity = createEntity(&proto, 10, 10, 0);
 
 	SDL_Event e;
 	while (SDL_WaitEvent(&e))
 	{
+		int hasQuit = 0;
 		switch (e.type)
 		{
 			case SDL_QUIT:
+				hasQuit = 1;
 				printf("User has quit.\n");
 				break;
+			case SDL_KEYDOWN:
+				switch (e.key.keysym.sym)
+				{
+					case SDLK_LEFT:
+						camera.angle += M_PI / 18;
+						break;
+					case SDLK_RIGHT:
+						camera.angle -= M_PI / 18;
+						break;
+					default:
+						break;
+				}
+				break;
+			default:
+				break;
+		}
+
+		// main loop
+		SDL_RenderClear(renderer);
+		drawEntity(&camera, &entity);
+		SDL_RenderPresent(renderer);
+
+		if (hasQuit)
+		{
+			break;
 		}
 	}
 
-	SDL_DestroyTexture(texture->sdlTexture);
+	unloadTexture(&proto.texture);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();

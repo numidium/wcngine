@@ -9,4 +9,4 @@
 *.obj
 .vs/wcngine/v15/Browse.VC.opendb
 .vs/wcngine/v15/Browse.VC.db
-.vs/wcngine/v15/ipch/AutoPCH/87341e1113e43abd/MAIN.ipch
+*.ipch
