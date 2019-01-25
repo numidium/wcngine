@@ -45,10 +45,10 @@ int main(int argc, char** argv)
 				switch (e.key.keysym.sym)
 				{
 					case SDLK_LEFT:
-						camera.angle += M_PI / 18;
+						rotateCamera(&camera, M_PI / 18);
 						break;
 					case SDLK_RIGHT:
-						camera.angle -= M_PI / 18;
+						rotateCamera(&camera, -M_PI / 18);
 						break;
 					default:
 						break;

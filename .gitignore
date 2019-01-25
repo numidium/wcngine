@@ -10,3 +10,4 @@
 .vs/wcngine/v15/Browse.VC.opendb
 .vs/wcngine/v15/Browse.VC.db
 *.ipch
+*.enc

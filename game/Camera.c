@@ -8,11 +8,20 @@ Camera createCamera(SDL_Renderer* renderer)
 	camera.y = 0;
 	camera.z = 0;
 	camera.angle = 0.0f;
-	camera.fov = M_PI / 2;
+	camera.fov = M_PI / 2.0f;
 
 	return camera;
 }
 
-void unloadCamera(Camera* camera)
+void rotateCamera(Camera* camera, double delta)
 {
+	camera->angle += delta;
+	if (camera->angle > 2.0f * M_PI - camera->fov / 2.0f)
+	{
+		camera->angle -= 2.0f * M_PI;
+	}
+	else if (camera->angle < -2.0f * M_PI + camera->fov / 2.0f)
+	{
+		camera->angle += 2.0f * M_PI;
+	}
 }
