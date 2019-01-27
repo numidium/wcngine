@@ -50,6 +50,22 @@ int main(int argc, char** argv)
 					case SDLK_RIGHT:
 						rotateCamera(&camera, -M_PI / 18);
 						break;
+					case SDLK_1:
+						entity.x = 10;
+						entity.y = 10;
+						break;
+					case SDLK_2:
+						entity.x = -10;
+						entity.y = 10;
+						break;
+					case SDLK_3:
+						entity.x = -10;
+						entity.y = -10;
+						break;
+					case SDLK_4:
+						entity.x = 10;
+						entity.y = -10;
+						break;
 					default:
 						break;
 				}

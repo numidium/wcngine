@@ -6,6 +6,7 @@ typedef struct Camera
 {
 	SDL_Renderer* renderer;
 	double x, y, z, angle, fov;
+	int w, h;
 } Camera;
 
 Camera createCamera(SDL_Renderer *renderer);

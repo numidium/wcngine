@@ -9,6 +9,7 @@ Camera createCamera(SDL_Renderer* renderer)
 	camera.z = 0;
 	camera.angle = 0.0f;
 	camera.fov = M_PI / 2.0f;
+	SDL_RenderGetLogicalSize(renderer, &camera.w, &camera.h);
 
 	return camera;
 }
@@ -24,4 +25,5 @@ void rotateCamera(Camera* camera, double delta)
 	{
 		camera->angle += 2.0f * M_PI;
 	}
+	printf("%f\n", camera->angle / M_PI);
 }
