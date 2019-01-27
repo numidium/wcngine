@@ -25,5 +25,10 @@ void rotateCamera(Camera* camera, double delta)
 	{
 		camera->angle += 2.0f * M_PI;
 	}
-	printf("%f\n", camera->angle / M_PI);
+}
+
+void moveCamera(Camera* camera, double deltaX, double deltaY)
+{
+	camera->x += deltaX;
+	camera->y += deltaY;
 }

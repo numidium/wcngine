@@ -38,5 +38,14 @@ void drawEntity(Camera *camera, Entity *entity)
 	double theta = angleToMe - camRay;
 	int screenX = camera->w - (theta / camera->fov) * camera->w;
 	int screenY = camera->h / 2;
-	drawTexture(camera->renderer, &entity->texture, screenX, screenY, 1.0f, 0.0f);
+/*	if (screenX < camera->w + entity->texture.width / 2 
+		&& screenX > -entity->texture.width / 2
+		&& screenY < camera->h + entity->texture.height / 2
+		&& screenY > -entity->texture.height / 2)
+	{
+
+	}
+*/
+	double distance = sqrt(pow(x, 2) + pow(y, 2));
+	drawTexture(camera->renderer, &entity->texture, screenX, screenY, distance / 2.0f, 0.0f);
 }

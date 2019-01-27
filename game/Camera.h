@@ -11,3 +11,4 @@ typedef struct Camera
 
 Camera createCamera(SDL_Renderer *renderer);
 void rotateCamera(Camera* camera, double delta);
+void moveCamera(Camera* camera, double deltaX, double deltaY);

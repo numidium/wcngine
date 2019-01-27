@@ -15,5 +15,4 @@ typedef struct EntityPrototype
 } EntityPrototype;
 
 Entity createEntity(EntityPrototype *proto, int x, int y, int z);
-void unloadEntity(Entity *entity);
 void drawEntity(Camera *camera, Entity *entity);

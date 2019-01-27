@@ -29,7 +29,12 @@ int main(int argc, char** argv)
 	proto.texture = loadTexture(renderer, "./Assets/Sprites/hyperion.bmp");
 
 	Camera camera = createCamera(renderer);
-	Entity entity = createEntity(&proto, 10, 10, 0);
+	Entity entities[5];
+	entities[0] = createEntity(&proto, 10, 10, 0);
+	entities[1] = createEntity(&proto, -20, 10, 0);
+	entities[2] = createEntity(&proto, -35, -60, 0);
+	entities[3] = createEntity(&proto, 5, -12, 0);
+	entities[4] = createEntity(&proto, 10, 70, 0);
 
 	SDL_Event e;
 	while (SDL_WaitEvent(&e))
@@ -44,27 +49,16 @@ int main(int argc, char** argv)
 			case SDL_KEYDOWN:
 				switch (e.key.keysym.sym)
 				{
+					case SDLK_UP:
+						moveCamera(&camera, 0.25f * cos(camera.angle), 0.25f * sin(camera.angle));
+						break;
+					case SDLK_DOWN:
+						break;
 					case SDLK_LEFT:
-						rotateCamera(&camera, M_PI / 18);
+						rotateCamera(&camera, M_PI / 30);
 						break;
 					case SDLK_RIGHT:
-						rotateCamera(&camera, -M_PI / 18);
-						break;
-					case SDLK_1:
-						entity.x = 10;
-						entity.y = 10;
-						break;
-					case SDLK_2:
-						entity.x = -10;
-						entity.y = 10;
-						break;
-					case SDLK_3:
-						entity.x = -10;
-						entity.y = -10;
-						break;
-					case SDLK_4:
-						entity.x = 10;
-						entity.y = -10;
+						rotateCamera(&camera, -M_PI / 30);
 						break;
 					default:
 						break;
@@ -74,9 +68,12 @@ int main(int argc, char** argv)
 				break;
 		}
 
-		// main loop
+		// rendering loop
 		SDL_RenderClear(renderer);
-		drawEntity(&camera, &entity);
+		for (int i = 0; i < 5; i++)
+		{
+			drawEntity(&camera, &entities[i]);
+		}
 		SDL_RenderPresent(renderer);
 
 		if (hasQuit)
