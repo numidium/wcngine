@@ -30,7 +30,7 @@ int main(int argc, char** argv)
 
 	Camera camera = createCamera(renderer);
 	Entity entities[5];
-	entities[0] = createEntity(&proto, 10, 10, 0);
+	entities[0] = createEntity(&proto, 10, 10, -10);
 	entities[1] = createEntity(&proto, -20, 10, 0);
 	entities[2] = createEntity(&proto, -35, -60, 0);
 	entities[3] = createEntity(&proto, 5, -12, 0);
@@ -50,15 +50,19 @@ int main(int argc, char** argv)
 				switch (e.key.keysym.sym)
 				{
 					case SDLK_UP:
-						moveCamera(&camera, 0.25f * cos(camera.angle), 0.25f * sin(camera.angle));
+						rotateCameraVert(&camera, -M_PI / 30);
 						break;
 					case SDLK_DOWN:
+						rotateCameraVert(&camera, M_PI / 30);
 						break;
 					case SDLK_LEFT:
-						rotateCamera(&camera, M_PI / 30);
+						rotateCameraHoriz(&camera, M_PI / 30);
 						break;
 					case SDLK_RIGHT:
-						rotateCamera(&camera, -M_PI / 30);
+						rotateCameraHoriz(&camera, -M_PI / 30);
+						break;
+					case SDLK_SPACE:
+						moveCamera(&camera, 0.25f * cos(camera.horizAngle), 0.25f * sin(camera.horizAngle), 0.25f * -sin(camera.vertAngle));
 						break;
 					default:
 						break;
