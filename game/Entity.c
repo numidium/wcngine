@@ -39,11 +39,12 @@ void drawEntity(Camera *camera, Entity *entity)
 	double theta = horizAngleToMe - camHorizRay;
 	int screenX = camera->w - (theta / camera->fov) * camera->w;
 
-	double distance = sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
-	double vertAngleToMe = atan2(distance, z);
 	double vertAngle = camera->vertAngle;
+	double distance2d = sqrt(pow(x, 2) + pow(y, 2));
+	double distance = sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
+	double vertAngleToMe = atan2(distance2d, z);
 	double camVertRay = (vertAngle - camera->fov / 2.0f);
-	double iota = vertAngleToMe - camVertRay - M_PI / 2;
+	double iota = vertAngleToMe - camVertRay - M_PI / 2.0f;
 	int screenY = camera->h - (iota / camera->fov) * camera->h;
 
 	double distanceDivisor = distance / 2.0f;

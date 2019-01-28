@@ -64,6 +64,12 @@ int main(int argc, char** argv)
 					case SDLK_SPACE:
 						moveCamera(&camera, 0.25f * cos(camera.horizAngle), 0.25f * sin(camera.horizAngle), 0.25f * -sin(camera.vertAngle));
 						break;
+					case SDLK_1:
+						camera.vertAngle = 0;
+						break;
+					case SDLK_2:
+						camera.horizAngle = 0;
+						break;
 					default:
 						break;
 				}

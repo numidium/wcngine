@@ -31,11 +31,11 @@ void rotateCameraHoriz(Camera* camera, double delta)
 void rotateCameraVert(Camera* camera, double delta)
 {
 	camera->vertAngle += delta;
-	if (camera->vertAngle > (2.0f * M_PI - (camera->fov) / 2.0f))
+	if (camera->vertAngle > (2.0f * M_PI - camera->fov) / 2.0f)
 	{
 		camera->vertAngle -= 2.0f * M_PI;
 	}
-	else if (camera->vertAngle < (-2.0f * M_PI + (camera->fov) / 2.0f))
+	else if (camera->vertAngle < (-2.0f * M_PI + camera->fov) / 2.0f)
 	{
 		camera->vertAngle += 2.0f * M_PI;
 	}
