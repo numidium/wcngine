@@ -16,6 +16,19 @@ void drawEntity(Camera *camera, Entity *entity)
 	double x = entity->x - camera->x;
 	double y = entity->y - camera->y;
 	double z = entity->z - camera->z;
+	double vertAngle = camera->vertAngle;
+	if (vertAngle > M_PI / 2)
+	{
+		x = -x;
+		y = -y;
+		vertAngle -= M_PI;
+	} 
+	else if (vertAngle < -M_PI / 2)
+	{
+		x = -x;
+		y = -y;
+		vertAngle += M_PI;
+	}
 	double horizAngleToMe = atan2(y, x);
 	double horizAngle = camera->horizAngle;
 	if (x > 0.0f && y > 0.0f && camera->horizAngle < -M_PI + camera->fov / 2.0f) // Quadrant I
@@ -39,7 +52,6 @@ void drawEntity(Camera *camera, Entity *entity)
 	double theta = horizAngleToMe - camHorizRay;
 	int screenX = camera->w - (theta / camera->fov) * camera->w;
 
-	double vertAngle = camera->vertAngle;
 	double distance2d = sqrt(pow(x, 2) + pow(y, 2));
 	double distance = sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
 	double vertAngleToMe = atan2(distance2d, z);

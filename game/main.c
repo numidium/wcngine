@@ -29,12 +29,11 @@ int main(int argc, char** argv)
 	proto.texture = loadTexture(renderer, "./Assets/Sprites/hyperion.bmp");
 
 	Camera camera = createCamera(renderer);
-	Entity entities[5];
-	entities[0] = createEntity(&proto, 10, 10, -10);
-	entities[1] = createEntity(&proto, -20, 10, 0);
-	entities[2] = createEntity(&proto, -35, -60, 0);
-	entities[3] = createEntity(&proto, 5, -12, 0);
-	entities[4] = createEntity(&proto, 10, 70, 0);
+	
+	#define ENT_COUNT 2
+	Entity entities[ENT_COUNT];
+	entities[0] = createEntity(&proto, 0, 10, 0);
+	entities[1] = createEntity(&proto, 0, -10, 0);
 
 	SDL_Event e;
 	while (SDL_WaitEvent(&e))
@@ -80,7 +79,7 @@ int main(int argc, char** argv)
 
 		// rendering loop
 		SDL_RenderClear(renderer);
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < ENT_COUNT; i++)
 		{
 			drawEntity(&camera, &entities[i]);
 		}

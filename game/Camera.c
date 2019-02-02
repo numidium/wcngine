@@ -43,7 +43,16 @@ void rotateCameraVert(Camera* camera, double delta)
 
 void moveCamera(Camera* camera, double deltaX, double deltaY, double deltaZ)
 {
-	camera->x += deltaX;
-	camera->y += deltaY;
-	camera->z += deltaZ;
+	if (camera->vertAngle > M_PI / 2 || camera->vertAngle < -M_PI / 2)
+	{
+		camera->x -= deltaX;
+		camera->y -= deltaY;
+		camera->z -= deltaZ;
+	}
+	else
+	{
+		camera->x += deltaX;
+		camera->y += deltaY;
+		camera->z += deltaZ;
+	}
 }
