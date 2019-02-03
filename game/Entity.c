@@ -17,17 +17,20 @@ void drawEntity(Camera *camera, Entity *entity)
 	double y = entity->y - camera->y;
 	double z = entity->z - camera->z;
 	double vertAngle = camera->vertAngle;
+	SDL_RendererFlip flip = SDL_FLIP_NONE;
 	if (vertAngle > M_PI / 2)
 	{
 		x = -x;
 		y = -y;
 		vertAngle -= M_PI;
+		flip |= SDL_FLIP_VERTICAL;
 	} 
 	else if (vertAngle < -M_PI / 2)
 	{
 		x = -x;
 		y = -y;
 		vertAngle += M_PI;
+		flip |= SDL_FLIP_VERTICAL;
 	}
 	double horizAngleToMe = atan2(y, x);
 	double horizAngle = camera->horizAngle;
@@ -65,6 +68,6 @@ void drawEntity(Camera *camera, Entity *entity)
 		&& screenY < camera->h + entity->texture.height / 2 / distanceDivisor
 		&& screenY > -entity->texture.height / 2 / distanceDivisor)
 	{
-		drawTexture(camera->renderer, &entity->texture, screenX, screenY, distanceDivisor, 0.0f);
+		drawTexture(camera->renderer, &entity->texture, screenX, screenY, distanceDivisor, 0.0f, flip);
 	}
 }

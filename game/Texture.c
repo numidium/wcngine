@@ -20,7 +20,7 @@ void unloadTexture(Texture* texture)
 	SDL_DestroyTexture(texture->sdlTexture);
 }
 
-void drawTexture(SDL_Renderer *renderer, Texture* texture, int x, int y, float scaleDivisor, double angle)
+void drawTexture(SDL_Renderer *renderer, Texture* texture, int x, int y, float scaleDivisor, double angle, SDL_RendererFlip flip)
 {
 	SDL_Rect dest;
 	dest.w = texture->width / scaleDivisor;
@@ -28,12 +28,5 @@ void drawTexture(SDL_Renderer *renderer, Texture* texture, int x, int y, float s
 	// Origin at center of image
 	dest.x = x - dest.w / 2;
 	dest.y = y - dest.h / 2;
-	if (angle == 0)
-	{
-		SDL_RenderCopy(renderer, texture->sdlTexture, NULL, &dest);
-	}
-	else
-	{
-		SDL_RenderCopyEx(renderer, texture->sdlTexture, NULL, &dest, angle, NULL, SDL_FLIP_NONE);
-	}
+	SDL_RenderCopyEx(renderer, texture->sdlTexture, NULL, &dest, angle, NULL, flip);
 }

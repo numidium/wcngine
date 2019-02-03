@@ -49,19 +49,25 @@ int main(int argc, char** argv)
 				switch (e.key.keysym.sym)
 				{
 					case SDLK_UP:
-						rotateCameraVert(&camera, -M_PI / 30);
+						rotateCameraVert(&camera, -M_PI / 30.0f);
 						break;
 					case SDLK_DOWN:
-						rotateCameraVert(&camera, M_PI / 30);
+						rotateCameraVert(&camera, M_PI / 30.0f);
 						break;
 					case SDLK_LEFT:
-						rotateCameraHoriz(&camera, M_PI / 30);
+						rotateCameraHoriz(&camera, M_PI / 30.0f);
 						break;
 					case SDLK_RIGHT:
-						rotateCameraHoriz(&camera, -M_PI / 30);
+						rotateCameraHoriz(&camera, -M_PI / 30.0f);
 						break;
 					case SDLK_SPACE:
 						moveCamera(&camera, 0.25f * cos(camera.horizAngle), 0.25f * sin(camera.horizAngle), 0.25f * -sin(camera.vertAngle));
+						break;
+					case SDLK_z:
+						rollCamera(&camera, 5.0f);
+						break;
+					case SDLK_x:
+						rollCamera(&camera, -5.0f);
 						break;
 					case SDLK_1:
 						camera.vertAngle = 0;

@@ -10,4 +10,4 @@ typedef struct Texture
 
 Texture loadTexture(SDL_Renderer *renderer, const char *path);
 void unloadTexture(Texture *texture);
-void drawTexture(SDL_Renderer *renderer, Texture *texture, int x, int y, float scaleDivisor, double angle);
+void drawTexture(SDL_Renderer *renderer, Texture *texture, int x, int y, float scaleDivisor, double angle, SDL_RendererFlip flip);

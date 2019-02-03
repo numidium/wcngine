@@ -10,6 +10,7 @@ Camera createCamera(SDL_Renderer* renderer)
 	camera.horizAngle = 0.0f;
 	camera.vertAngle = 0.0f;
 	camera.fov = M_PI / 2.0f;
+	camera.roll = 0.0f;
 	SDL_RenderGetLogicalSize(renderer, &camera.w, &camera.h);
 
 	return camera;
@@ -55,4 +56,9 @@ void moveCamera(Camera* camera, double deltaX, double deltaY, double deltaZ)
 		camera->y += deltaY;
 		camera->z += deltaZ;
 	}
+}
+
+void rollCamera(Camera* camera, double deltaRoll)
+{
+	camera->roll += deltaRoll;
 }
