@@ -32,7 +32,7 @@ int main(int argc, char** argv)
 	
 	#define ENT_COUNT 2
 	Entity entities[ENT_COUNT];
-	entities[0] = createEntity(&proto, 0, 10, 0);
+	entities[0] = createEntity(&proto, 10, 0, 0);
 	entities[1] = createEntity(&proto, 0, -10, 0);
 
 	SDL_Event e;
