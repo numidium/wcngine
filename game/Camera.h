@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL.h>
+#include "Formulas.h"
 
 typedef struct Camera
 {

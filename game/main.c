@@ -30,15 +30,14 @@ int main(int argc, char** argv)
 
 	Camera camera = createCamera(renderer);
 	
-	#define ENT_COUNT 2
+	#define ENT_COUNT 1
 	Entity entities[ENT_COUNT];
 	entities[0] = createEntity(&proto, 10, 0, 0);
-	entities[1] = createEntity(&proto, 0, -10, 0);
 
 	SDL_Event e;
 	while (SDL_WaitEvent(&e))
 	{
-		int hasQuit = 0;
+		short hasQuit = 0;
 		switch (e.type)
 		{
 			case SDL_QUIT:
@@ -49,31 +48,34 @@ int main(int argc, char** argv)
 				switch (e.key.keysym.sym)
 				{
 					case SDLK_UP:
-						rotateCameraVert(&camera, -M_PI / 30.0f);
+						rotateCameraVert(&camera, -M_PI / 30.0);
 						break;
 					case SDLK_DOWN:
-						rotateCameraVert(&camera, M_PI / 30.0f);
+						rotateCameraVert(&camera, M_PI / 30.0);
 						break;
 					case SDLK_LEFT:
-						rotateCameraHoriz(&camera, M_PI / 30.0f);
+						rotateCameraHoriz(&camera, M_PI / 30.0);
 						break;
 					case SDLK_RIGHT:
-						rotateCameraHoriz(&camera, -M_PI / 30.0f);
+						rotateCameraHoriz(&camera, -M_PI / 30.0);
 						break;
 					case SDLK_SPACE:
-						moveCamera(&camera, 0.25f * cos(camera.horizAngle), 0.25f * sin(camera.horizAngle), 0.25f * -sin(camera.vertAngle));
+						moveCamera(&camera, 0.25 * cos(camera.horizAngle), 0.25 * sin(camera.horizAngle), 0.25 * -sin(camera.vertAngle));
 						break;
 					case SDLK_z:
-						rollCamera(&camera, 5.0f);
+						rollCamera(&camera, 30.0);
 						break;
 					case SDLK_x:
-						rollCamera(&camera, -5.0f);
+						rollCamera(&camera, -30.0);
 						break;
 					case SDLK_1:
-						camera.vertAngle = 0;
+						camera.vertAngle = 0.0;
 						break;
 					case SDLK_2:
-						camera.horizAngle = 0;
+						camera.horizAngle = 0.0;
+						break;
+					case SDLK_3:
+						camera.roll = 0.0;
 						break;
 					default:
 						break;

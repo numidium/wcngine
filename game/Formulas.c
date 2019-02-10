@@ -3,5 +3,5 @@
 
 double degreesToRadians(double degrees)
 {
-	return degrees * (M_PI / 180.0f);
+	return degrees * (M_PI / 180.0);
 }

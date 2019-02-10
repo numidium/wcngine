@@ -18,7 +18,17 @@ Camera createCamera(SDL_Renderer* renderer)
 
 void rotateCameraHoriz(Camera* camera, double delta)
 {
-	camera->horizAngle += delta;
+	double rollRadians = degreesToRadians(camera->roll);
+	camera->vertAngle += delta * sin(rollRadians);
+	camera->horizAngle += delta * cos(rollRadians);
+	if (camera->vertAngle > (2.0 * M_PI - camera->fov) / 2.0)
+	{
+		camera->vertAngle -= 2.0 * M_PI;
+	}
+	else if (camera->vertAngle < (-2.0 * M_PI + camera->fov) / 2.0)
+	{
+		camera->vertAngle += 2.0 * M_PI;
+	}
 	if (camera->horizAngle > 2.0 * M_PI - camera->fov / 2.0)
 	{
 		camera->horizAngle -= 2.0 * M_PI;
@@ -31,7 +41,9 @@ void rotateCameraHoriz(Camera* camera, double delta)
 
 void rotateCameraVert(Camera* camera, double delta)
 {
-	camera->vertAngle += delta;
+	double rollRadians = degreesToRadians(camera->roll);
+	camera->vertAngle += delta * sin(rollRadians + M_PI / 2.0);
+	camera->horizAngle += delta * cos(rollRadians + M_PI / 2.0);
 	if (camera->vertAngle > (2.0 * M_PI - camera->fov) / 2.0)
 	{
 		camera->vertAngle -= 2.0 * M_PI;
@@ -39,6 +51,14 @@ void rotateCameraVert(Camera* camera, double delta)
 	else if (camera->vertAngle < (-2.0 * M_PI + camera->fov) / 2.0)
 	{
 		camera->vertAngle += 2.0 * M_PI;
+	}
+	if (camera->horizAngle > 2.0 * M_PI - camera->fov / 2.0)
+	{
+		camera->horizAngle -= 2.0 * M_PI;
+	}
+	else if (camera->horizAngle < -2.0 * M_PI + camera->fov / 2.0)
+	{
+		camera->horizAngle += 2.0 * M_PI;
 	}
 }
 
