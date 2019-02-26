@@ -1,25 +1,38 @@
 #include <stdio.h>
 #include <SDL.h>
+#include <GL/glew.h>
+#include <GL/GLU.h>
+#include <SDL_opengl.h>
 #include "Texture.h"
 #include "Entity.h"
 #include "Camera.h"
+#pragma comment(lib, "glew32.lib")
 
 int main(int argc, char** argv) 
 {
+	// Initialize SDL
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
 	{
-		printf(SDL_GetError());
+		printf("SDL failed to initialize: %s\n", SDL_GetError());
 	}
-	else
-	{
-		printf("SDL appears to be working.\n");
-	}
-
-	SDL_Window* window = SDL_CreateWindow("WCngine", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768, 0);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_Window* window = SDL_CreateWindow("WCngine", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768, SDL_WINDOW_OPENGL);
 	if (window == NULL)
 	{
 		printf(SDL_GetError());
 		return 1;
+	}
+
+	// Initialize GLEW
+	SDL_GLContext glContext = SDL_GL_CreateContext(window);
+	if (glContext == NULL)
+	{
+		printf("Could not create GLContext: %s\n", SDL_GetError());
+	}
+	GLenum glewInitResult = glewInit();
+	if (glewInitResult != GLEW_OK)
+	{
+		printf("GLEW Initialization failed: %s\n", glewGetErrorString(glewInitResult));
 	}
 
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
