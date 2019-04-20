@@ -8,6 +8,8 @@
 #include "Camera.h"
 #pragma comment(lib, "glew32.lib")
 
+void Render();
+
 int main(int argc, char** argv) 
 {
 	// Initialize SDL
@@ -43,14 +45,25 @@ int main(int argc, char** argv)
 
 	Camera camera = createCamera(renderer);
 	
-	#define ENT_COUNT 1
+	#define ENT_COUNT 2
 	Entity entities[ENT_COUNT];
 	entities[0] = createEntity(&proto, 10, 0, 0);
+	entities[1] = createEntity(&proto, 0, -10, 0);
+
+	// GL rendering settings
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(-2.0, 2.0, -2.0, 2.0, -20.0, 20.0);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+	glShadeModel(GL_SMOOTH);
 
 	SDL_Event e;
 	while (SDL_WaitEvent(&e))
 	{
-		short hasQuit = 0;
+		int hasQuit = 0;
 		switch (e.type)
 		{
 			case SDL_QUIT:
@@ -61,34 +74,31 @@ int main(int argc, char** argv)
 				switch (e.key.keysym.sym)
 				{
 					case SDLK_UP:
-						rotateCameraVert(&camera, -M_PI / 30.0);
+						rotateCameraVert(&camera, -M_PI / 30.0f);
 						break;
 					case SDLK_DOWN:
-						rotateCameraVert(&camera, M_PI / 30.0);
+						rotateCameraVert(&camera, M_PI / 30.0f);
 						break;
 					case SDLK_LEFT:
-						rotateCameraHoriz(&camera, M_PI / 30.0);
+						rotateCameraHoriz(&camera, M_PI / 30.0f);
 						break;
 					case SDLK_RIGHT:
-						rotateCameraHoriz(&camera, -M_PI / 30.0);
+						rotateCameraHoriz(&camera, -M_PI / 30.0f);
 						break;
 					case SDLK_SPACE:
-						moveCamera(&camera, 0.25 * cos(camera.horizAngle), 0.25 * sin(camera.horizAngle), 0.25 * -sin(camera.vertAngle));
+						moveCamera(&camera, 0.25f * cos(camera.horizAngle), 0.25f * sin(camera.horizAngle), 0.25f * -sin(camera.vertAngle));
 						break;
 					case SDLK_z:
-						rollCamera(&camera, 30.0);
+						rollCamera(&camera, 5.0f);
 						break;
 					case SDLK_x:
-						rollCamera(&camera, -30.0);
+						rollCamera(&camera, -5.0f);
 						break;
 					case SDLK_1:
-						camera.vertAngle = 0.0;
+						camera.vertAngle = 0;
 						break;
 					case SDLK_2:
-						camera.horizAngle = 0.0;
-						break;
-					case SDLK_3:
-						camera.roll = 0.0;
+						camera.horizAngle = 0;
 						break;
 					default:
 						break;
@@ -99,12 +109,21 @@ int main(int argc, char** argv)
 		}
 
 		// rendering loop
+		/*
 		SDL_RenderClear(renderer);
 		for (int i = 0; i < ENT_COUNT; i++)
 		{
 			drawEntity(&camera, &entities[i]);
 		}
 		SDL_RenderPresent(renderer);
+		*/
+
+		SDL_GL_MakeCurrent(window, glContext);
+		int width, height;
+		SDL_GetWindowSize(window, &width, &height);
+		glViewport(0, 0, width, height);
+		Render();
+		SDL_GL_SwapWindow(window);
 
 		if (hasQuit)
 		{
@@ -118,4 +137,93 @@ int main(int argc, char** argv)
 	SDL_Quit();
 
 	return 0;
+}
+
+void Render()
+{
+	static float color[8][3] = {
+	{1.0, 1.0, 0.0},
+	{1.0, 0.0, 0.0},
+	{0.0, 0.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 1.0},
+	{1.0, 1.0, 1.0},
+	{1.0, 0.0, 1.0},
+	{0.0, 0.0, 1.0}
+	};
+	static float cube[8][3] = {
+		{0.5, 0.5, -0.5},
+		{0.5, -0.5, -0.5},
+		{-0.5, -0.5, -0.5},
+		{-0.5, 0.5, -0.5},
+		{-0.5, 0.5, 0.5},
+		{0.5, 0.5, 0.5},
+		{0.5, -0.5, 0.5},
+		{-0.5, -0.5, 0.5}
+	};
+
+	/* Do our drawing, too. */
+	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glBegin(GL_QUADS);
+
+	glColor3fv(color[0]);
+	glVertex3fv(cube[0]);
+	glColor3fv(color[1]);
+	glVertex3fv(cube[1]);
+	glColor3fv(color[2]);
+	glVertex3fv(cube[2]);
+	glColor3fv(color[3]);
+	glVertex3fv(cube[3]);
+
+	glColor3fv(color[3]);
+	glVertex3fv(cube[3]);
+	glColor3fv(color[4]);
+	glVertex3fv(cube[4]);
+	glColor3fv(color[7]);
+	glVertex3fv(cube[7]);
+	glColor3fv(color[2]);
+	glVertex3fv(cube[2]);
+
+	glColor3fv(color[0]);
+	glVertex3fv(cube[0]);
+	glColor3fv(color[5]);
+	glVertex3fv(cube[5]);
+	glColor3fv(color[6]);
+	glVertex3fv(cube[6]);
+	glColor3fv(color[1]);
+	glVertex3fv(cube[1]);
+
+	glColor3fv(color[5]);
+	glVertex3fv(cube[5]);
+	glColor3fv(color[4]);
+	glVertex3fv(cube[4]);
+	glColor3fv(color[7]);
+	glVertex3fv(cube[7]);
+	glColor3fv(color[6]);
+	glVertex3fv(cube[6]);
+
+	glColor3fv(color[5]);
+	glVertex3fv(cube[5]);
+	glColor3fv(color[0]);
+	glVertex3fv(cube[0]);
+	glColor3fv(color[3]);
+	glVertex3fv(cube[3]);
+	glColor3fv(color[4]);
+	glVertex3fv(cube[4]);
+
+	glColor3fv(color[6]);
+	glVertex3fv(cube[6]);
+	glColor3fv(color[1]);
+	glVertex3fv(cube[1]);
+	glColor3fv(color[2]);
+	glVertex3fv(cube[2]);
+	glColor3fv(color[7]);
+	glVertex3fv(cube[7]);
+
+	glEnd();
+
+	glMatrixMode(GL_MODELVIEW);
+	glRotatef(5.0, 1.0, 1.0, 1.0);
 }
