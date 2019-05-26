@@ -5,9 +5,9 @@ Entity createEntity(EntityPrototype *proto, int x, int y, int z)
 {
 	Entity entity;
 	entity.texture = proto->texture;
-	entity.x = x;
-	entity.y = y;
-	entity.z = z;
+	entity.x = (float)x;
+	entity.y = (float)y;
+	entity.z = (float)z;
 
 	return entity;
 }

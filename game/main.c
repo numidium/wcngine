@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <SDL.h>
 #include <GL/glew.h>
-#include <GL/GLU.h>
+#include <gl/GL.h>
+#include <GL/freeglut.h>
 #include <SDL_opengl.h>
 #include "Texture.h"
 #include "Entity.h"
