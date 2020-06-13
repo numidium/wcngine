@@ -4,9 +4,6 @@
 #include <gl/GL.h>
 #include <GL/freeglut.h>
 #include <SDL_opengl.h>
-#include "Texture.h"
-#include "Entity.h"
-#include "Camera.h"
 #pragma comment(lib, "glew32.lib")
 
 void Render();
@@ -40,16 +37,6 @@ int main(int argc, char** argv)
 
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	SDL_RenderSetLogicalSize(renderer, 640, 480);
-	
-	EntityPrototype proto;
-	proto.texture = loadTexture(renderer, "./Assets/Sprites/hyperion.bmp");
-
-	Camera camera = createCamera(renderer);
-	
-	#define ENT_COUNT 2
-	Entity entities[ENT_COUNT];
-	entities[0] = createEntity(&proto, 10, 0, 0);
-	entities[1] = createEntity(&proto, 0, -10, 0);
 
 	// GL rendering settings
 	glMatrixMode(GL_PROJECTION);
@@ -74,33 +61,6 @@ int main(int argc, char** argv)
 			case SDL_KEYDOWN:
 				switch (e.key.keysym.sym)
 				{
-					case SDLK_UP:
-						rotateCameraVert(&camera, -M_PI / 30.0f);
-						break;
-					case SDLK_DOWN:
-						rotateCameraVert(&camera, M_PI / 30.0f);
-						break;
-					case SDLK_LEFT:
-						rotateCameraHoriz(&camera, M_PI / 30.0f);
-						break;
-					case SDLK_RIGHT:
-						rotateCameraHoriz(&camera, -M_PI / 30.0f);
-						break;
-					case SDLK_SPACE:
-						moveCamera(&camera, 0.25f * cos(camera.horizAngle), 0.25f * sin(camera.horizAngle), 0.25f * -sin(camera.vertAngle));
-						break;
-					case SDLK_z:
-						rollCamera(&camera, 5.0f);
-						break;
-					case SDLK_x:
-						rollCamera(&camera, -5.0f);
-						break;
-					case SDLK_1:
-						camera.vertAngle = 0;
-						break;
-					case SDLK_2:
-						camera.horizAngle = 0;
-						break;
 					default:
 						break;
 				}
@@ -109,15 +69,7 @@ int main(int argc, char** argv)
 				break;
 		}
 
-		// rendering loop
-		/*
-		SDL_RenderClear(renderer);
-		for (int i = 0; i < ENT_COUNT; i++)
-		{
-			drawEntity(&camera, &entities[i]);
-		}
-		SDL_RenderPresent(renderer);
-		*/
+		// insert rendering loop here
 
 		SDL_GL_MakeCurrent(window, glContext);
 		int width, height;
@@ -132,7 +84,6 @@ int main(int argc, char** argv)
 		}
 	}
 
-	unloadTexture(&proto.texture);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
@@ -226,5 +177,4 @@ void Render()
 	glEnd();
 
 	glMatrixMode(GL_MODELVIEW);
-	glRotatef(5.0, 1.0, 1.0, 1.0);
 }
