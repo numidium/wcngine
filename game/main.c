@@ -6,7 +6,10 @@
 #include <SDL_opengl.h>
 #pragma comment(lib, "glew32.lib")
 
-void Render();
+void RenderScene();
+void moveCam(float, float, float);
+
+float camX, camY, camZ, camYaw;
 
 int main(int argc, char** argv) 
 {
@@ -41,13 +44,21 @@ int main(int argc, char** argv)
 	// GL rendering settings
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(-2.0, 2.0, -2.0, 2.0, -20.0, 20.0);
+	gluPerspective(90.0, 640.0 / 480.0, 0.1, 500.0);
 	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glShadeModel(GL_SMOOTH);
 
+	camX = 0.0f;
+	camY = 0.0f;
+	camZ = 2.0f;
+	camYaw = 0.0f;
+
+	SDL_GL_MakeCurrent(window, glContext);
+	int width, height;
+	SDL_GetWindowSize(window, &width, &height);
+	glViewport(0, 0, width, height);
 	SDL_Event e;
 	while (SDL_WaitEvent(&e))
 	{
@@ -69,13 +80,21 @@ int main(int argc, char** argv)
 				break;
 		}
 
-		// insert rendering loop here
+		camYaw += 1.0f;
 
-		SDL_GL_MakeCurrent(window, glContext);
-		int width, height;
-		SDL_GetWindowSize(window, &width, &height);
-		glViewport(0, 0, width, height);
-		Render();
+		// insert rendering loop here
+		glLoadIdentity();
+		glPushMatrix();
+			glRotatef(-camYaw, 0.0, 1.0, 0.0);
+			glTranslatef(-camX, -camY, -camZ);
+			glPushMatrix();
+				glLoadIdentity();
+				RenderScene();
+		glPopMatrix();
+			RenderScene();
+		glPopMatrix();
+		glFlush();
+
 		SDL_GL_SwapWindow(window);
 
 		if (hasQuit)
@@ -91,7 +110,14 @@ int main(int argc, char** argv)
 	return 0;
 }
 
-void Render()
+void moveCam(float camYaw, float dist, float dir)
+{
+	float rad = (camYaw + dir)*M_PI / 180.0;      //convert the degrees into radians
+	camX -= sin(rad)*dist;    //calculate the new coorinate, if you don't understand, draw a right triangle with the datas, you have
+	camZ -= cos(rad)*dist;    //and try to calculate the new coorinate with trigonometric functions, that should help
+}
+
+void RenderScene()
 {
 	static float color[8][3] = {
 	{1.0, 1.0, 0.0},
@@ -114,7 +140,6 @@ void Render()
 		{-0.5, -0.5, 0.5}
 	};
 
-	/* Do our drawing, too. */
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
