@@ -76,7 +76,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\rbrtc\Documents\GitHub\wcngine\lib\OpenGL\freeglut\include;C:\Users\rbrtc\Documents\GitHub\wcngine\lib\OpenGL\glew-1.9.0\include;C:\Users\rbrtc\Documents\GitHub\wcngine\lib\SDL2-2.0.9\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\rbrtc\Documents\GitHub\wcngine\lib\glm;C:\Users\rbrtc\Documents\GitHub\wcngine\lib\OpenGL\freeglut\include;C:\Users\rbrtc\Documents\GitHub\wcngine\lib\OpenGL\glew-1.9.0\include;C:\Users\rbrtc\Documents\GitHub\wcngine\lib\SDL2-2.0.9\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\Users\rbrtc\Documents\GitHub\wcngine\lib\OpenGL\glew-1.9.0\lib;C:\Users\rbrtc\Documents\GitHub\wcngine\lib\OpenGL\freeglut\lib;C:\Users\rbrtc\Documents\GitHub\wcngine\lib\SDL2-2.0.9\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -90,7 +90,14 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\rbrtc\Documents\GitHub\wcngine\lib\glm;C:\Users\rbrtc\Documents\GitHub\wcngine\lib\OpenGL\freeglut\include;C:\Users\rbrtc\Documents\GitHub\wcngine\lib\OpenGL\glew-1.9.0\include;C:\Users\rbrtc\Documents\GitHub\wcngine\lib\SDL2-2.0.9\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OmitFramePointers>false</OmitFramePointers>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>C:\Users\rbrtc\Documents\GitHub\wcngine\lib\OpenGL\glew-1.9.0\lib;C:\Users\rbrtc\Documents\GitHub\wcngine\lib\OpenGL\freeglut\lib;C:\Users\rbrtc\Documents\GitHub\wcngine\lib\SDL2-2.0.9\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -124,7 +131,7 @@
     <ClCompile Include="Camera.c" />
     <ClCompile Include="Entity.c" />
     <ClCompile Include="Formulas.c" />
-    <ClCompile Include="main.c" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="Texture.c" />
   </ItemGroup>
   <ItemGroup>
