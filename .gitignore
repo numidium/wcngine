@@ -3,7 +3,8 @@
 *.ilk
 *.pdb
 *.log
-.vs/wcngine/v15/.suo
+.vs/wcngine
+Debug
 *.tlog
 *.idb
 *.obj
