@@ -55,240 +55,129 @@ Last Updated: 14/08/2018
 #include <strstream>
 #include <list>
 #include <iostream>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
-struct vec3d
-{
-    float x = 0;
-    float y = 0;
-    float z = 0;
-    float w = 1; // Need a 4th term to perform sensible matrix vector multiplication
-};
-
-struct mat4x4
-{
-    float m[4][4] = { { 0 } };
-};
-
-class olcEngine3D
+class Renderer3d
 {
 private:
-    mat4x4 matProj;    // Matrix that converts from view space to screen space
-    vec3d vCamera;    // Location of camera in world space
-    vec3d vLookDir;    // Direction vector along the direction camera points
-    float fYaw;        // FPS Camera rotation in XZ plane
-    float fTheta;    // Spins World transform
+    glm::mat4x4 matProj; // Matrix that converts from view space to screen space
+    glm::vec4 camera;    // Location of camera in world space
+    glm::vec4 lookDir;
+    float yaw;
+    float theta;
     uint16_t screenWidth, screenHeight;
     SDL_Renderer* renderer;
     bool hasQuit;
 
-    vec3d Matrix_MultiplyVector(mat4x4& m, vec3d& i)
+    glm::vec4 Matrix_MultiplyVector(glm::mat4x4& m, glm::vec4& i)
     {
-        vec3d v;
-        v.x = i.x * m.m[0][0] + i.y * m.m[1][0] + i.z * m.m[2][0] + i.w * m.m[3][0];
-        v.y = i.x * m.m[0][1] + i.y * m.m[1][1] + i.z * m.m[2][1] + i.w * m.m[3][1];
-        v.z = i.x * m.m[0][2] + i.y * m.m[1][2] + i.z * m.m[2][2] + i.w * m.m[3][2];
-        v.w = i.x * m.m[0][3] + i.y * m.m[1][3] + i.z * m.m[2][3] + i.w * m.m[3][3];
+        glm::vec4 v;
+        v.x = i.x * m[0][0] + i.y * m[1][0] + i.z * m[2][0] + i.w * m[3][0];
+        v.y = i.x * m[0][1] + i.y * m[1][1] + i.z * m[2][1] + i.w * m[3][1];
+        v.z = i.x * m[0][2] + i.y * m[1][2] + i.z * m[2][2] + i.w * m[3][2];
+        v.w = i.x * m[0][3] + i.y * m[1][3] + i.z * m[2][3] + i.w * m[3][3];
         return v;
     }
 
-    mat4x4 Matrix_MakeIdentity()
+    glm::mat4x4 Matrix_MakeRotationX(float fAngleRad)
     {
-        mat4x4 matrix;
-        matrix.m[0][0] = 1.0f;
-        matrix.m[1][1] = 1.0f;
-        matrix.m[2][2] = 1.0f;
-        matrix.m[3][3] = 1.0f;
+        glm::mat4x4 matrix = glm::mat4x4();
+        matrix[0][0] = 1.0f;
+        matrix[1][1] = cosf(fAngleRad);
+        matrix[1][2] = sinf(fAngleRad);
+        matrix[2][1] = -sinf(fAngleRad);
+        matrix[2][2] = cosf(fAngleRad);
+        matrix[3][3] = 1.0f;
         return matrix;
     }
 
-    mat4x4 Matrix_MakeRotationX(float fAngleRad)
+    glm::mat4x4 Matrix_MakeRotationY(float fAngleRad)
     {
-        mat4x4 matrix;
-        matrix.m[0][0] = 1.0f;
-        matrix.m[1][1] = cosf(fAngleRad);
-        matrix.m[1][2] = sinf(fAngleRad);
-        matrix.m[2][1] = -sinf(fAngleRad);
-        matrix.m[2][2] = cosf(fAngleRad);
-        matrix.m[3][3] = 1.0f;
+        glm::mat4x4 matrix = glm::mat4x4();
+        matrix[0][0] = cosf(fAngleRad);
+        matrix[0][2] = sinf(fAngleRad);
+        matrix[2][0] = -sinf(fAngleRad);
+        matrix[1][1] = 1.0f;
+        matrix[2][2] = cosf(fAngleRad);
+        matrix[3][3] = 1.0f;
         return matrix;
     }
 
-    mat4x4 Matrix_MakeRotationY(float fAngleRad)
+    glm::mat4x4 Matrix_MakeRotationZ(float fAngleRad)
     {
-        mat4x4 matrix;
-        matrix.m[0][0] = cosf(fAngleRad);
-        matrix.m[0][2] = sinf(fAngleRad);
-        matrix.m[2][0] = -sinf(fAngleRad);
-        matrix.m[1][1] = 1.0f;
-        matrix.m[2][2] = cosf(fAngleRad);
-        matrix.m[3][3] = 1.0f;
+        glm::mat4x4 matrix = glm::mat4x4();
+        matrix[0][0] = cosf(fAngleRad);
+        matrix[0][1] = sinf(fAngleRad);
+        matrix[1][0] = -sinf(fAngleRad);
+        matrix[1][1] = cosf(fAngleRad);
+        matrix[2][2] = 1.0f;
+        matrix[3][3] = 1.0f;
         return matrix;
     }
 
-    mat4x4 Matrix_MakeRotationZ(float fAngleRad)
+    glm::mat4x4 Matrix_MakeTranslation(float x, float y, float z)
     {
-        mat4x4 matrix;
-        matrix.m[0][0] = cosf(fAngleRad);
-        matrix.m[0][1] = sinf(fAngleRad);
-        matrix.m[1][0] = -sinf(fAngleRad);
-        matrix.m[1][1] = cosf(fAngleRad);
-        matrix.m[2][2] = 1.0f;
-        matrix.m[3][3] = 1.0f;
+        glm::mat4x4 matrix = glm::mat4x4();
+        matrix[0][0] = 1.0f;
+        matrix[1][1] = 1.0f;
+        matrix[2][2] = 1.0f;
+        matrix[3][3] = 1.0f;
+        matrix[3][0] = x;
+        matrix[3][1] = y;
+        matrix[3][2] = z;
         return matrix;
     }
 
-    mat4x4 Matrix_MakeTranslation(float x, float y, float z)
-    {
-        mat4x4 matrix;
-        matrix.m[0][0] = 1.0f;
-        matrix.m[1][1] = 1.0f;
-        matrix.m[2][2] = 1.0f;
-        matrix.m[3][3] = 1.0f;
-        matrix.m[3][0] = x;
-        matrix.m[3][1] = y;
-        matrix.m[3][2] = z;
-        return matrix;
-    }
-
-    mat4x4 Matrix_MakeProjection(float fFovDegrees, float fAspectRatio, float fNear, float fFar)
+    glm::mat4x4 Matrix_MakeProjection(float fFovDegrees, float fAspectRatio, float fNear, float fFar)
     {
         float fFovRad = 1.0f / tanf(fFovDegrees * 0.5f / 180.0f * 3.14159f);
-        mat4x4 matrix;
-        matrix.m[0][0] = fAspectRatio * fFovRad;
-        matrix.m[1][1] = fFovRad;
-        matrix.m[2][2] = fFar / (fFar - fNear);
-        matrix.m[3][2] = (-fFar * fNear) / (fFar - fNear);
-        matrix.m[2][3] = 1.0f;
-        matrix.m[3][3] = 0.0f;
+        glm::mat4x4 matrix = glm::mat4x4();
+        matrix[0][0] = fAspectRatio * fFovRad;
+        matrix[1][1] = fFovRad;
+        matrix[2][2] = fFar / (fFar - fNear);
+        matrix[3][2] = (-fFar * fNear) / (fFar - fNear);
+        matrix[2][3] = 1.0f;
+        matrix[3][3] = 0.0f;
         return matrix;
     }
 
-    mat4x4 Matrix_MultiplyMatrix(mat4x4& m1, mat4x4& m2)
-    {
-        mat4x4 matrix;
-        for (int c = 0; c < 4; c++)
-            for (int r = 0; r < 4; r++)
-                matrix.m[r][c] = m1.m[r][0] * m2.m[0][c] + m1.m[r][1] * m2.m[1][c] + m1.m[r][2] * m2.m[2][c] + m1.m[r][3] * m2.m[3][c];
-        return matrix;
-    }
-
-    mat4x4 Matrix_PointAt(vec3d& pos, vec3d& target, vec3d& up)
+    glm::mat4x4 Matrix_PointAt(glm::vec4& pos, glm::vec4& target, glm::vec4& up)
     {
         // Calculate new forward direction
-        vec3d newForward = Vector_Sub(target, pos);
-        newForward = Vector_Normalise(newForward);
+        glm::vec4 newForward = target - pos;
+        newForward = glm::normalize(newForward);
 
         // Calculate new Up direction
-        vec3d a = Vector_Mul(newForward, Vector_DotProduct(up, newForward));
-        vec3d newUp = Vector_Sub(up, a);
-        newUp = Vector_Normalise(newUp);
+        glm::vec4 a = newForward * glm::dot(up, newForward);
+        glm::vec4 newUp = up - a;
+        newUp = glm::normalize(newUp);
 
         // New Right direction is easy, its just cross product
-        vec3d newRight = Vector_CrossProduct(newUp, newForward);
+        glm::vec3 r = glm::cross((glm::vec3)newUp, (glm::vec3)newForward);
+        glm::vec4 newRight { r.x, r.y, r.z, 1.f };
 
-        // Construct Dimensioning and Translation Matrix    
-        mat4x4 matrix;
-        matrix.m[0][0] = newRight.x;    matrix.m[0][1] = newRight.y;    matrix.m[0][2] = newRight.z;    matrix.m[0][3] = 0.0f;
-        matrix.m[1][0] = newUp.x;        matrix.m[1][1] = newUp.y;        matrix.m[1][2] = newUp.z;        matrix.m[1][3] = 0.0f;
-        matrix.m[2][0] = newForward.x;    matrix.m[2][1] = newForward.y;    matrix.m[2][2] = newForward.z;    matrix.m[2][3] = 0.0f;
-        matrix.m[3][0] = pos.x;            matrix.m[3][1] = pos.y;            matrix.m[3][2] = pos.z;            matrix.m[3][3] = 1.0f;
+        // Construct Dimensioning and Translation Matrix
+        glm::mat4x4 matrix = glm::mat4x4();
+        matrix[0][0] = newRight.x;      matrix[0][1] = newRight.y;    matrix[0][2] = newRight.z;    matrix[0][3] = 0.0f;
+        matrix[1][0] = newUp.x;         matrix[1][1] = newUp.y;       matrix[1][2] = newUp.z;       matrix[1][3] = 0.0f;
+        matrix[2][0] = newForward.x;    matrix[2][1] = newForward.y;  matrix[2][2] = newForward.z;  matrix[2][3] = 0.0f;
+        matrix[3][0] = pos.x;           matrix[3][1] = pos.y;         matrix[3][2] = pos.z;         matrix[3][3] = 1.0f;
+
         return matrix;
-
-    }
-
-    mat4x4 Matrix_QuickInverse(mat4x4& m) // Only for Rotation/Translation Matrices
-    {
-        mat4x4 matrix;
-        matrix.m[0][0] = m.m[0][0]; matrix.m[0][1] = m.m[1][0]; matrix.m[0][2] = m.m[2][0]; matrix.m[0][3] = 0.0f;
-        matrix.m[1][0] = m.m[0][1]; matrix.m[1][1] = m.m[1][1]; matrix.m[1][2] = m.m[2][1]; matrix.m[1][3] = 0.0f;
-        matrix.m[2][0] = m.m[0][2]; matrix.m[2][1] = m.m[1][2]; matrix.m[2][2] = m.m[2][2]; matrix.m[2][3] = 0.0f;
-        matrix.m[3][0] = -(m.m[3][0] * matrix.m[0][0] + m.m[3][1] * matrix.m[1][0] + m.m[3][2] * matrix.m[2][0]);
-        matrix.m[3][1] = -(m.m[3][0] * matrix.m[0][1] + m.m[3][1] * matrix.m[1][1] + m.m[3][2] * matrix.m[2][1]);
-        matrix.m[3][2] = -(m.m[3][0] * matrix.m[0][2] + m.m[3][1] * matrix.m[1][2] + m.m[3][2] * matrix.m[2][2]);
-        matrix.m[3][3] = 1.0f;
-        return matrix;
-    }
-
-    vec3d Vector_Add(vec3d& v1, vec3d& v2)
-    {
-        return { v1.x + v2.x, v1.y + v2.y, v1.z + v2.z };
-    }
-
-    vec3d Vector_Sub(vec3d& v1, vec3d& v2)
-    {
-        return { v1.x - v2.x, v1.y - v2.y, v1.z - v2.z };
-    }
-
-    vec3d Vector_Mul(vec3d& v1, float k)
-    {
-        return { v1.x * k, v1.y * k, v1.z * k };
-    }
-
-    vec3d Vector_Div(vec3d& v1, float k)
-    {
-        return { v1.x / k, v1.y / k, v1.z / k };
-    }
-
-    float Vector_DotProduct(vec3d& v1, vec3d& v2)
-    {
-        return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-    }
-
-    float Vector_Length(vec3d& v)
-    {
-        return sqrtf(Vector_DotProduct(v, v));
-    }
-
-    vec3d Vector_Normalise(vec3d& v)
-    {
-        float l = Vector_Length(v);
-        return { v.x / l, v.y / l, v.z / l };
-    }
-
-    vec3d Vector_CrossProduct(vec3d& v1, vec3d& v2)
-    {
-        vec3d v;
-        v.x = v1.y * v2.z - v1.z * v2.y;
-        v.y = v1.z * v2.x - v1.x * v2.z;
-        v.z = v1.x * v2.y - v1.y * v2.x;
-        return v;
-    }
-
-    vec3d Vector_IntersectPlane(vec3d& plane_p, vec3d& plane_n, vec3d& lineStart, vec3d& lineEnd)
-    {
-        plane_n = Vector_Normalise(plane_n);
-        float plane_d = -Vector_DotProduct(plane_n, plane_p);
-        float ad = Vector_DotProduct(lineStart, plane_n);
-        float bd = Vector_DotProduct(lineEnd, plane_n);
-        float t = (-plane_d - ad) / (bd - ad);
-        vec3d lineStartToEnd = Vector_Sub(lineEnd, lineStart);
-        vec3d lineToIntersect = Vector_Mul(lineStartToEnd, t);
-        return Vector_Add(lineStart, lineToIntersect);
-    }
-
-    uint32_t GetColor(float lum)
-    {
-        uint8_t brightness = (uint8_t)(lum * 255.f);
-
-        return (brightness << 24) | (brightness << 16) | (brightness << 8) | brightness; // pack greyscale rbga values
-    }
-
-    void DrawTriangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3)
-    {
-        SDL_Point points[3]{ {x1, y1}, {x2, y2}, {x3, y3} };
-        SDL_RenderDrawLines(renderer, points, 3);
-        SDL_RenderDrawLine(renderer, points[2].x, points[2].y, points[0].x, points[0].y);
     }
 
 public:
-    olcEngine3D()
+    Renderer3d(SDL_Renderer* _renderer)
     {
         screenWidth = 640;
         screenHeight = 480;
         hasQuit = false;
+        matProj = Matrix_MakeProjection(90.0f, (float)ScreenHeight() / (float)ScreenWidth(), 0.1f, 1000.0f);
+        renderer = _renderer;
     }
 
-    ~olcEngine3D()
+    ~Renderer3d()
     {
         SDL_DestroyRenderer(renderer);
     }
@@ -299,26 +188,16 @@ public:
 
     bool HasQuit() { return hasQuit; }
 
-    void SetRenderer(SDL_Renderer* _renderer) { renderer = _renderer; }
-
-    bool OnUserCreate()
-    {
-
-        // Projection Matrix
-        matProj = Matrix_MakeProjection(90.0f, (float)ScreenHeight() / (float)ScreenWidth(), 0.1f, 1000.0f);
-        return true;
-    }
-
     void Fill(uint32_t color)
     {
         SDL_SetRenderDrawColor(renderer, color << 24, color << 16, color << 8, color);
         SDL_RenderClear(renderer);
     }
 
-    bool OnUserUpdate()
+    void Update()
     {
         const float MoveSpeed = .1f;
-        vec3d vForward = Vector_Mul(vLookDir, MoveSpeed);
+        glm::vec4 vForward = lookDir * MoveSpeed;
         SDL_Event e;
         while (SDL_PollEvent(&e))
         {
@@ -332,16 +211,16 @@ public:
                 switch (e.key.keysym.sym)
                 {
                     case SDLK_w:
-                        vCamera = Vector_Add(vCamera, vForward);
+                        camera = camera + vForward;
                         break;
                     case SDLK_s:
-                        vCamera = Vector_Sub(vCamera, vForward);
+                        camera = camera - vForward;
                         break;
                     case SDLK_a:
-                        fYaw -= 0.1f;
+                        yaw -= 0.1f;
                         break;
                     case SDLK_d:
-                        fYaw += 0.1f;
+                        yaw += 0.1f;
                         break;
                     default:
                         break;
@@ -352,43 +231,43 @@ public:
             }
         }
 
-        // Set up "World Tranmsform" though not updating theta 
-        // makes this a bit redundant
-        mat4x4 matRotZ, matRotX;
-        matRotZ = Matrix_MakeRotationZ(fTheta * 0.5f);
-        matRotX = Matrix_MakeRotationX(fTheta);
+        // Create world transform by applying rotations and translation
+        glm::mat4x4 matRotZ, matRotX;
+        matRotZ = Matrix_MakeRotationZ(theta * 0.5f);
+        matRotX = Matrix_MakeRotationX(theta);
 
-        mat4x4 matTrans;
-        matTrans = Matrix_MakeTranslation(0.0f, 0.0f, 5.0f);
+        glm::mat4x4 matTranslate;
+        matTranslate = Matrix_MakeTranslation(0.0f, 0.0f, 5.0f);
 
-        mat4x4 matWorld;
-        matWorld = Matrix_MakeIdentity();    // Form World Matrix
-        matWorld = Matrix_MultiplyMatrix(matRotZ, matRotX); // Transform by rotation
-        matWorld = Matrix_MultiplyMatrix(matWorld, matTrans); // Transform by translation
+        glm::mat4x4 matWorld;
+        matWorld = matRotZ * matRotX;
+        matWorld = matWorld * matTranslate;
 
         // Create "Point At" Matrix for camera
-        vec3d vUp = { 0,1,0 };
-        vec3d vTarget = { 0,0,1 };
-        mat4x4 matCameraRot = Matrix_MakeRotationY(fYaw);
-        vLookDir = Matrix_MultiplyVector(matCameraRot, vTarget);
-        vTarget = Vector_Add(vCamera, vLookDir);
-        mat4x4 matCamera = Matrix_PointAt(vCamera, vTarget, vUp);
+        glm::vec4 vUp = { 0, 1, 0, 1 };
+        glm::vec4 vTarget = { 0, 0, 1, 1 };
+        glm::mat4x4 matCameraRot = Matrix_MakeRotationY(yaw);
+        lookDir = matCameraRot * vTarget;
+        vTarget = camera + lookDir;
+        glm::mat4x4 matCamera = Matrix_PointAt(camera, vTarget, vUp);
+        // The below call doesn't yield the same results. I have no clue why.
+        //glm::mat4x4 matCamera = glm::lookAt((glm::vec3)vCamera, (glm::vec3)vTarget, (glm::vec3)vUp);
 
         // Make view matrix from camera
-        mat4x4 matView = Matrix_QuickInverse(matCamera);
+        glm::mat4x4 matView = glm::inverse(matCamera);
 
-        vec3d testPoint = { 0.f, 0.f, 0.f };
-        vec3d testPointTransformed = Matrix_MultiplyVector(matWorld, testPoint);
-        vec3d testPointView = Matrix_MultiplyVector(matView, testPointTransformed);
-        vec3d testPointProj = Matrix_MultiplyVector(matProj, testPointView);
-        testPointProj = Vector_Div(testPointProj, testPointProj.w);
+        glm::vec4 testPoint(0.f, 0.f, 0.f, 1.f);
+        glm::vec4 testPointTransformed = matWorld * testPoint;
+        glm::vec4 testPointView = matView * testPointTransformed;
+        glm::vec4 testPointProj = matProj * testPointView;
+        testPointProj = testPointProj / testPointProj.w;
         testPointProj.x *= -1.f;
         testPointProj.y *= -1.f;
-        vec3d offsetView = { 1.0f, 1.f, 0.f };
-        testPointProj = Vector_Add(testPointProj, offsetView);
+        glm::vec4 offsetView(1.0f, 1.f, 0.f, 1.f);
+        testPointProj = testPointProj + offsetView;
         testPointProj.x *= 0.5f * (float)ScreenWidth();
         testPointProj.y *= 0.5f * (float)ScreenHeight();
-        vec3d pointClip = Matrix_MultiplyVector(matProj, testPointView);
+        glm::vec4 pointClip = matProj * testPointView;
         // TODO: apply an outside frustum tolerance so billboards don't get clipped when center is outside
         bool pointInFrustum = abs(pointClip.x) < pointClip.w && abs(pointClip.y) < pointClip.w && pointClip.z > .0f && pointClip.z < pointClip.w;
 
@@ -404,15 +283,11 @@ public:
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderDrawPoint(renderer, testPointProj.x, testPointProj.y);
         }
-
-        return true;
     }
-
 };
 
 int main(int argc, char* argv[])
 {
-    olcEngine3D demo;
     
     // Initialize SDL
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
@@ -427,25 +302,24 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    SDL_Renderer* r = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    SDL_RenderSetLogicalSize(r, 640, 480);
-    demo.SetRenderer(r);
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    Renderer3d renderer3d(renderer);
+    SDL_RenderSetLogicalSize(renderer, renderer3d.ScreenWidth(), renderer3d.ScreenHeight());
     bool hasQuit = false;
     Uint32 tickStart;
     Uint32 tickTime = 0;
     const Uint32 tickMinTime = 34; // ~30 ticks/second
 
-    demo.OnUserCreate();
-    while (!demo.HasQuit())
+    while (!renderer3d.HasQuit())
     {
         tickStart = SDL_GetTicks();
-        demo.OnUserUpdate();
+        renderer3d.Update();
 
         if (hasQuit)
             break;
 
         // Draw to screen
-        SDL_RenderPresent(r);
+        SDL_RenderPresent(renderer);
         // Ticks/second limiting
         tickTime = SDL_GetTicks() - tickStart;
         if (tickTime < tickMinTime)
