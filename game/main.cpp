@@ -65,10 +65,12 @@ private:
     glm::vec4 camera;    // Location of camera in world space
     glm::vec4 lookDir;
     float yaw;
+    float pitch;
     float theta;
     uint16_t screenWidth, screenHeight;
     SDL_Renderer* renderer;
     bool hasQuit;
+    float MAX_RADIANS = (float)M_PI * 2.f;
 
     glm::vec4 Matrix_MultiplyVector(glm::mat4x4& m, glm::vec4& i)
     {
@@ -175,6 +177,9 @@ public:
         hasQuit = false;
         matProj = Matrix_MakeProjection(90.0f, (float)ScreenHeight() / (float)ScreenWidth(), 0.1f, 1000.0f);
         renderer = _renderer;
+        yaw = 0.f;
+        pitch = 0.f;
+        camera.z = -1.f;
     }
 
     ~Renderer3d()
@@ -192,6 +197,11 @@ public:
     {
         SDL_SetRenderDrawColor(renderer, color << 24, color << 16, color << 8, color);
         SDL_RenderClear(renderer);
+    }
+
+    float GetDistance(glm::vec4& v1, glm::vec4& v2)
+    {
+        return sqrt(pow(v2.x - v1.x, 2) + pow(v2.y - v1.y, 2) + pow(v2.z - v1.z, 2));
     }
 
     void Update()
@@ -216,11 +226,25 @@ public:
                     case SDLK_s:
                         camera = camera - vForward;
                         break;
-                    case SDLK_a:
+                    case SDLK_LEFT:
                         yaw -= 0.1f;
+                        if (yaw < 0.f)
+                            yaw = MAX_RADIANS + yaw;
                         break;
-                    case SDLK_d:
+                    case SDLK_RIGHT:
                         yaw += 0.1f;
+                        if (yaw >= MAX_RADIANS)
+                            yaw = yaw - MAX_RADIANS;
+                        break;
+                    case SDLK_UP:
+                        pitch += 0.1f;
+                        if (pitch >= MAX_RADIANS)
+                            pitch = pitch - MAX_RADIANS;
+                        break;
+                    case SDLK_DOWN:
+                        pitch -= 0.1f;
+                        if (pitch < 0.f)
+                            pitch = MAX_RADIANS + pitch;
                         break;
                     default:
                         break;
@@ -232,26 +256,24 @@ public:
         }
 
         // Create world transform by applying rotations and translation
+        camera.w = 1.f;
         glm::mat4x4 matRotZ, matRotX;
         matRotZ = Matrix_MakeRotationZ(theta * 0.5f);
         matRotX = Matrix_MakeRotationX(theta);
 
-        glm::mat4x4 matTranslate;
-        matTranslate = Matrix_MakeTranslation(0.0f, 0.0f, 5.0f);
-
         glm::mat4x4 matWorld;
         matWorld = matRotZ * matRotX;
-        matWorld = matWorld * matTranslate;
 
         // Create "Point At" Matrix for camera
         glm::vec4 vUp = { 0, 1, 0, 1 };
         glm::vec4 vTarget = { 0, 0, 1, 1 };
         glm::mat4x4 matCameraRot = Matrix_MakeRotationY(yaw);
+        matCameraRot *= Matrix_MakeRotationX(pitch);
         lookDir = matCameraRot * vTarget;
         vTarget = camera + lookDir;
         glm::mat4x4 matCamera = Matrix_PointAt(camera, vTarget, vUp);
         // The below call doesn't yield the same results. I have no clue why.
-        //glm::mat4x4 matCamera = glm::lookAt((glm::vec3)vCamera, (glm::vec3)vTarget, (glm::vec3)vUp);
+        //glm::mat4x4 matCamera = glm::lookAt((glm::vec3)camera, (glm::vec3)vTarget, (glm::vec3)vUp);
 
         // Make view matrix from camera
         glm::mat4x4 matView = glm::inverse(matCamera);
@@ -278,7 +300,8 @@ public:
         {
             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
             const float squareSize = 100.f;
-            SDL_Rect r = { (int)testPointProj.x - (int)((squareSize / 2.f) / testPointView.z), (int)testPointProj.y - (int)((squareSize / 2.f) / testPointView.z), (int)(squareSize / testPointView.z), (int)(squareSize / testPointView.z) }; // square around center point
+            auto dist = GetDistance(camera, testPoint);
+            SDL_Rect r = { (int)testPointProj.x - (int)((squareSize / 2.f) / dist), (int)testPointProj.y - (int)((squareSize / 2.f) / dist), (int)(squareSize / dist), (int)(squareSize / dist) }; // square around center point
             SDL_RenderDrawRect(renderer, &r);
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderDrawPoint(renderer, testPointProj.x, testPointProj.y);
