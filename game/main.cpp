@@ -62,7 +62,7 @@ class Renderer3d
 {
 private:
     glm::mat4x4 matProj; // Matrix that converts from view space to screen space
-    glm::vec4 camera;    // Location of camera in world space
+    glm::vec3 camera;    // Location of camera in world space
     glm::vec4 lookDir;
     float yaw;
     float pitch;
@@ -175,7 +175,8 @@ public:
         screenWidth = 640;
         screenHeight = 480;
         hasQuit = false;
-        matProj = Matrix_MakeProjection(90.0f, (float)ScreenHeight() / (float)ScreenWidth(), 0.1f, 1000.0f);
+        //matProj = Matrix_MakeProjection(90.0f, (float)ScreenHeight() / (float)ScreenWidth(), 0.1f, 1000.0f);
+        matProj = glm::perspective(90.0f, (float)ScreenHeight() / (float)ScreenWidth(), 0.1f, 1000.f);
         renderer = _renderer;
         yaw = 0.f;
         pitch = 0.f;
@@ -199,7 +200,7 @@ public:
         SDL_RenderClear(renderer);
     }
 
-    float GetDistance(glm::vec4& v1, glm::vec4& v2)
+    float GetDistance(glm::vec3& v1, glm::vec3& v2)
     {
         return sqrt(pow(v2.x - v1.x, 2) + pow(v2.y - v1.y, 2) + pow(v2.z - v1.z, 2));
     }
@@ -207,7 +208,7 @@ public:
     void Update()
     {
         const float MoveSpeed = .1f;
-        glm::vec4 vForward = lookDir * MoveSpeed;
+        glm::vec3 vForward = lookDir * MoveSpeed;
         SDL_Event e;
         while (SDL_PollEvent(&e))
         {
@@ -256,7 +257,6 @@ public:
         }
 
         // Create world transform by applying rotations and translation
-        camera.w = 1.f;
         glm::mat4x4 matRotZ, matRotX;
         matRotZ = Matrix_MakeRotationZ(theta * 0.5f);
         matRotX = Matrix_MakeRotationX(theta);
@@ -265,37 +265,37 @@ public:
         matWorld = matRotZ * matRotX;
 
         // Create "Point At" Matrix for camera
-        glm::vec4 vUp = { 0, 1, 0, 1 };
-        glm::vec4 vTarget = { 0, 0, 1, 1 };
-        glm::mat4x4 matCameraRot = Matrix_MakeRotationY(yaw);
-        matCameraRot *= Matrix_MakeRotationX(pitch);
-        lookDir = matCameraRot * vTarget;
-        vTarget = camera + lookDir;
-        glm::mat4x4 matCamera = Matrix_PointAt(camera, vTarget, vUp);
+        glm::vec3 vUp = { 0, 1, 0 };
+        glm::vec3 cameraFront = { 0, 0, 1 };
+        //glm::mat4x4 matCamera = Matrix_PointAt(camera, vTarget, vUp);
         // The below call doesn't yield the same results. I have no clue why.
-        //glm::mat4x4 matCamera = glm::lookAt((glm::vec3)camera, (glm::vec3)vTarget, (glm::vec3)vUp);
-
+        glm::mat4x4 matView = glm::lookAt(camera, camera + cameraFront, vUp);
+        matView = glm::rotate(matView, yaw, glm::vec3(0.f, 0.f, 1.f));
         // Make view matrix from camera
-        glm::mat4x4 matView = glm::inverse(matCamera);
+        glm::vec3 testPoint(0.f, 0.f, 0.f);
+        glm::mat4 model(1.f);
+        glm::mat4 mvp = matProj * matView * model;
 
-        glm::vec4 testPoint(0.f, 0.f, 0.f, 1.f);
-        glm::vec4 testPointTransformed = matWorld * testPoint;
-        glm::vec4 testPointView = matView * testPointTransformed;
-        glm::vec4 testPointProj = matProj * testPointView;
-        testPointProj = testPointProj / testPointProj.w;
-        testPointProj.x *= -1.f;
-        testPointProj.y *= -1.f;
-        glm::vec4 offsetView(1.0f, 1.f, 0.f, 1.f);
-        testPointProj = testPointProj + offsetView;
-        testPointProj.x *= 0.5f * (float)ScreenWidth();
-        testPointProj.y *= 0.5f * (float)ScreenHeight();
-        glm::vec4 pointClip = matProj * testPointView;
+        glm::vec4 testPointProj(testPoint.x, testPoint.y, testPoint.z, 1.f);
+        testPointProj = mvp * testPointProj;
+        //glm::vec4 testPointTransformed = matWorld * testPoint;
+        //glm::vec4 testPointView = matView * testPointTransformed;
+        //glm::vec4 testPointProj = matProj * testPointView;
+        //testPointProj = testPointProj / testPointProj.w;
+        //testPointProj.x *= -1.f;
+        //testPointProj.y *= -1.f;
+        //glm::vec4 offsetView(1.0f, 1.f, 0.f, 1.f);
+        //testPointProj = testPointProj + offsetView;
+        //testPointProj.x *= 0.5f * (float)ScreenWidth();
+        //testPointProj.y *= 0.5f * (float)ScreenHeight();
+        //glm::vec4 pointClip = matProj * testPointView;
         // TODO: apply an outside frustum tolerance so billboards don't get clipped when center is outside
-        bool pointInFrustum = abs(pointClip.x) < pointClip.w && abs(pointClip.y) < pointClip.w && pointClip.z > .0f && pointClip.z < pointClip.w;
+        //bool pointInFrustum = abs(pointClip.x) < pointClip.w && abs(pointClip.y) < pointClip.w && pointClip.z > .0f && pointClip.z < pointClip.w;
 
         // Clear Screen
         Fill(0);
 
+        /*
         if (pointInFrustum)
         {
             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
@@ -306,6 +306,7 @@ public:
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderDrawPoint(renderer, testPointProj.x, testPointProj.y);
         }
+        */
     }
 };
 
